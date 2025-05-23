@@ -1,78 +1,62 @@
-import Link from "next/link"
-import { ArrowLeft, Calendar, Clock } from "lucide-react"
+interface Props {
+  params: { slug: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
 
-export default function JournalEntryPage({ params }: { params: { slug: string } }) {
-  // Get current date in a readable format
-  const today = new Date()
-  const formattedDate = today.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-
-  // Extract day number from slug (e.g., "day-1" -> "1")
-  const dayNumber = params.slug.split("-")[1] || "1"
+export default function Page({ params, searchParams }: Props) {
+  const dayNumber = Number.parseInt(params.slug)
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center">
-          <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
-          </Link>
-        </div>
-      </header>
+    <main className="font-serif">
+      <h1>Day {dayNumber} of Development</h1>
 
-      <main className="flex-1 container py-12">
-        <article className="prose prose-slate dark:prose-invert mx-auto">
-          <h1>Day {dayNumber} - Development Journal</h1>
+      {/* Replace the lorem ipsum content with meaningful journal entries */}
+      <p>
+        Today marks day {dayNumber} of my development journey. I'm documenting my progress to build consistency and
+        reflect on my growth as a developer.
+      </p>
 
-          <div className="flex items-center gap-2 text-muted-foreground not-prose mb-8">
-            <Calendar className="h-4 w-4" />
-            <span>{formattedDate}</span>
-          </div>
+      <h2>What I Learned Today</h2>
+      <p>
+        I deepened my understanding of React Server Components in Next.js 15. The ability to fetch data directly in
+        components without client-side JavaScript has significantly improved my application's performance and user
+        experience.
+      </p>
 
-          <p>
-            Today marks day {dayNumber} of my development journey. This page will contain my progress, challenges faced,
-            and achievements for the day.
-          </p>
+      <h2>Challenges Faced</h2>
+      <p>
+        Implementing proper state management across server and client components proved challenging. I had to carefully
+        consider which components needed interactivity and which could remain server-rendered. After some refactoring, I
+        found a clean architecture that maintains performance while preserving needed interactivity.
+      </p>
 
-          <h2>What I Learned Today</h2>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-            ea commodo consequat.
-          </p>
+      <h2>Tomorrow's Goals</h2>
+      <ul>
+        <li>Implement authentication flow using environment variables for secure credential management</li>
+        <li>Optimize image loading with Next.js built-in Image component</li>
+        <li>Write unit tests for critical application paths</li>
+      </ul>
 
-          <h2>Challenges Faced</h2>
-          <p>
-            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-            laborum.
-          </p>
+      <h2>Code Snippet of the Day</h2>
+      <pre>
+        <code>{`// Server Component data fetching
+async function getData() {
+  const res = await fetch('https://api.example.com/data')
+  if (!res.ok) throw new Error('Failed to fetch data')
+  return res.json()
+}
 
-          <h2>Tomorrow's Goals</h2>
-          <ul>
-            <li>Continue working on feature X</li>
-            <li>Research solution for problem Y</li>
-            <li>Refactor component Z for better performance</li>
-          </ul>
-        </article>
-      </main>
+export default async function Page() {
+  const data = await getData()
+  return <main>{/* Use data here */}</main>
+}`}</code>
+      </pre>
 
-      <footer className="border-t py-6">
-        <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
-          <p className="text-center text-sm text-muted-foreground md:text-left">
-            &copy; {new Date().getFullYear()} Daily Dev Journal. All rights reserved.
-          </p>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            <span>Last updated: {formattedDate}</span>
-          </div>
-        </div>
-      </footer>
-    </div>
+      <h2>Resources Discovered</h2>
+      <p>
+        Found an excellent article on optimizing Tailwind CSS for production. Will implement these strategies tomorrow
+        to reduce bundle size and improve load times.
+      </p>
+    </main>
   )
 }

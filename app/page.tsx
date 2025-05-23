@@ -1,5 +1,8 @@
 import Link from "next/link"
 import { ArrowRight, Calendar, Clock, Github } from "lucide-react"
+import { DevQuote } from "@/components/dev-quote"
+import { DevMilestones } from "@/components/dev-milestones"
+import { RecentJournals } from "@/components/recent-journals"
 
 export default function Home() {
   // Get current date in a readable format
@@ -37,7 +40,7 @@ export default function Home() {
         <section className="space-y-6 pb-12">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">Daily Dev Journal</h1>
-            <p className="text-lg text-muted-foreground">Track your coding journey with daily automated updates</p>
+            <p className="text-lg text-muted-foreground">Code consistently. Grow daily. Track your progress.</p>
           </div>
 
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -46,22 +49,33 @@ export default function Home() {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
+            {[
+              {
+                title: "Daily Reflection",
+                description: "Document your coding wins, challenges overcome, and lessons learned each day.",
+                link: "/journal/day-1",
+              },
+              {
+                title: "Skill Progress",
+                description: "Track your growing expertise in languages, frameworks, and development tools.",
+                link: "/journal/day-2",
+              },
+              {
+                title: "Project Milestones",
+                description: "Record key achievements and breakthroughs in your development projects.",
+                link: "/journal/day-3",
+              },
+            ].map((card, i) => (
               <div
                 key={i}
                 className="group relative overflow-hidden rounded-lg border bg-background p-6 shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
-                    <h3 className="font-medium tracking-tight">Day {i + 1} Update</h3>
-                    <p className="text-muted-foreground">
-                      Your daily development progress, challenges, and achievements.
-                    </p>
+                    <h3 className="font-medium tracking-tight">{card.title}</h3>
+                    <p className="text-muted-foreground">{card.description}</p>
                   </div>
-                  <Link
-                    href={`/journal/day-${i + 1}`}
-                    className="flex items-center gap-1 text-sm font-medium text-primary"
-                  >
+                  <Link href={card.link} className="flex items-center gap-1 text-sm font-medium text-primary">
                     Read more <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
@@ -70,25 +84,30 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="space-y-6">
+        <RecentJournals />
+
+        <section className="space-y-6 mt-12">
           <h2 className="text-2xl font-bold tracking-tight">How It Works</h2>
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="rounded-lg border bg-background p-6">
               <h3 className="mb-2 font-medium">Daily Automated Updates</h3>
               <p className="text-muted-foreground">
-                This project uses GitHub Actions to make an empty commit every day at midnight Nepal Time (UTC+05:45),
-                ensuring your contribution graph stays active.
+                Never miss a day in your coding streak. Automated commits keep your GitHub contribution graph active,
+                while you focus on documenting real progress.
               </p>
             </div>
             <div className="rounded-lg border bg-background p-6">
               <h3 className="mb-2 font-medium">Built with Latest Tech</h3>
               <p className="text-muted-foreground">
-                Powered by Next.js 15 and Tailwind CSS v4, this project uses the latest web technologies for optimal
-                performance and developer experience.
+                Experience the power of Next.js 15 and Tailwind CSS v4. This journal leverages cutting-edge web
+                technologies for a seamless development experience.
               </p>
             </div>
           </div>
         </section>
+
+        <DevMilestones />
+        <DevQuote />
       </main>
 
       <footer className="border-t py-6">
