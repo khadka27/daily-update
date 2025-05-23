@@ -21,25 +21,22 @@ name: 📅 Daily Commit
 # runs every day at 18:15 UTC → 00:00 Nepal Time
 on:
   schedule:
-    - cron: "15 18 * * *"
+    - cron: '15 18 * * *'  
   # Allow manual triggering for testing
   workflow_dispatch:
-  # Run on push to main branch to ensure workflow is working
-  push:
-    branches: [main]
 
 jobs:
   commit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
-          # Use a personal access token instead of GITHUB_TOKEN
-          token: ${{ secrets.PAT_TOKEN }}  # You'll need to create this secret
-
 
       - name: Configure Git user
         run: |
@@ -50,12 +47,12 @@ jobs:
         run: |
           # Get current date in format YYYY-MM-DD
           CURRENT_DATE=$(date -u +'%Y-%m-%d')
-
+          
           # Create a new journal entry file if it doesn't exist
           JOURNAL_DIR="journals"
           mkdir -p $JOURNAL_DIR
           JOURNAL_FILE="$JOURNAL_DIR/journal-$CURRENT_DATE.md"
-
+          
           if [ ! -f "$JOURNAL_FILE" ]; then
             echo "# Journal Entry: $CURRENT_DATE" > "$JOURNAL_FILE"
             echo "" >> "$JOURNAL_FILE"
@@ -65,6 +62,14 @@ jobs:
             echo "- Continue building and improving the project" >> "$JOURNAL_FILE"
             echo "- Review code and documentation" >> "$JOURNAL_FILE"
             echo "- Plan next features and enhancements" >> "$JOURNAL_FILE"
+            echo "" >> "$JOURNAL_FILE"
+            echo "## What I Learned" >> "$JOURNAL_FILE"
+            echo "- Automated workflows with GitHub Actions" >> "$JOURNAL_FILE"
+            echo "- Daily consistency in coding practice" >> "$JOURNAL_FILE"
+            echo "" >> "$JOURNAL_FILE"
+            echo "## Tomorrow's Goals" >> "$JOURNAL_FILE"
+            echo "- Continue improving the project" >> "$JOURNAL_FILE"
+            echo "- Add new features and functionality" >> "$JOURNAL_FILE"
             
             # Add and commit the new journal file
             git add "$JOURNAL_FILE"
@@ -75,4 +80,8 @@ jobs:
           fi
 
       - name: Push to main
-        run: git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/khadka27/daily-update.git
+          git push origin main
