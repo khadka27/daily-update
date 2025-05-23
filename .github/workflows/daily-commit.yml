@@ -37,6 +37,9 @@ jobs:
         with:
           persist-credentials: true
           fetch-depth: 0
+          # Use a personal access token instead of GITHUB_TOKEN
+          token: ${{ secrets.PAT_TOKEN }}  # You'll need to create this secret
+
 
       - name: Configure Git user
         run: |
