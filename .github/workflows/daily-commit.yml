@@ -1,0 +1,29 @@
+name: 📅 Daily Commit
+
+# runs every day at 18:15 UTC → 00:00 Nepal Time
+on:
+  schedule:
+    - cron: '15 18 * * *'  
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true  
+
+      - name: Configure Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Make empty commit
+        run: |
+          git commit --allow-empty -m "chore: daily automated commit $(date -u +'%Y-%m-%d')"
+
+      - name: Push to main
+        run: git push origin main
