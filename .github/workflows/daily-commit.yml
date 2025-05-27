@@ -1,45 +1,31 @@
-# This workflow creates a daily journal entry in the "journals" directory
-# and commits it to the main branch. It runs every day at 18:15 UTC (00:00 Nepal Time).
-# The workflow is triggered by a cron schedule and can also be manually triggered.
-# The workflow also runs on push to the main branch to ensure that it is working correctly.
-# The workflow uses the latest version of Ubuntu as the runner and checks out the code.
-# It configures the Git user with a name and email, creates a new journal entry file
-# if it doesn't exist, and adds and commits the new journal file. If no new journal file
-# was created, it makes an empty commit. Finally, it pushes the changes to the main branch.
-# This workflow is useful for automating daily journal entries and keeping track of progress
-# and tasks in a project. It can be customized to include specific tasks or focus areas
-# for each day. The workflow is designed to be simple and efficient, allowing for easy
-# tracking of daily progress and tasks without manual intervention.
-# This workflow is designed to create a daily journal entry in the "journals" directory
-# and commit it to the main branch. It runs every day at 18:15 UTC (00:00 Nepal Time).
-# The workflow is triggered by a cron schedule and can also be manually triggered.
-# The workflow also runs on push to the main branch to ensure that it is working correctly.
-# The workflow uses the latest version of Ubuntu as the runner and checks out the code.
-
 name: 📅 Daily Commit
+
+permissions:
+  contents: write
 
 on:
   schedule:
-    - cron: "15 18 * * *"
+    - cron: "15 18 * * *" # 18:15 UTC → 00:00 NPT
   workflow_dispatch:
 
 jobs:
   commit:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      actions: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          persist-credentials: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          python-version: "3.x"
+          node-version: "18"
+
+      - name: Install ts-node
+        run: npm install -g ts-node typescript
 
       - name: Configure Git user
         run: |
@@ -47,64 +33,73 @@ jobs:
           git config user.email "abishekkhadka90@gmail.com"
 
       - name: Generate and commit journal entry
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pip install requests
-          cat > generate_content.py << 'EOL'
-          import random
-          import datetime
+          # Write the TypeScript script
+          cat > generate_content.ts << 'EOF'
+          import { writeFileSync, mkdirSync, existsSync } from 'fs';
+          import { format } from 'date-fns';
 
-          def get_random_quote():
-              quotes = [
-                  "The best way to predict the future is to create it.",
-                  "Code is like humor. When you have to explain it, it's bad.",
-                  "The only way to do great work is to love what you do.",
-                  "Programming isn't about what you know; it's about what you can figure out.",
-                  "The most damaging phrase in the language is 'We've always done it this way.'"
-              ]
-              return random.choice(quotes)
+          const quotes = [
+            "The best way to predict the future is to create it.",
+            "Code is like humor. When you have to explain it, it's bad.",
+            "The only way to do great work is to love what you do.",
+            "Programming isn't about what you know; it's about what you can figure out.",
+            "The most damaging phrase in the language is 'We've always done it this way.'"
+          ];
 
-          def get_random_topics():
-              topics = [
-                  "Web Development", "Machine Learning", "Cloud Computing",
-                  "DevOps", "Mobile Development", "Data Science",
-                  "Cybersecurity", "Blockchain", "UI/UX Design",
-                  "API Development", "Database Management", "System Architecture"
-              ]
-              return random.sample(topics, 3)
+          const topics = [
+            "Web Development", "Machine Learning", "Cloud Computing",
+            "DevOps", "Mobile Development", "Data Science",
+            "Cybersecurity", "Blockchain", "UI/UX Design",
+            "API Development", "Database Management", "System Architecture"
+          ];
 
-          def get_random_goals():
-              goals = [
-                  "Implement new feature", "Refactor existing code",
-                  "Write unit tests", "Update documentation",
-                  "Fix bugs", "Optimize performance",
-                  "Learn new technology", "Review pull requests",
-                  "Plan architecture", "Deploy updates"
-              ]
-              return random.sample(goals, 3)
+          const goals = [
+            "Implement new feature", "Refactor existing code",
+            "Write unit tests", "Update documentation",
+            "Fix bugs", "Optimize performance",
+            "Learn new technology", "Review pull requests",
+            "Plan architecture", "Deploy updates"
+          ];
 
-          def generate_journal_content():
-              current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-              quote = get_random_quote()
-              topics = get_random_topics()
-              goals = get_random_goals()
-              
-              content = f"# Journal Entry: {current_date}\n\n> {quote}\n\n## Today's Focus\n{chr(10).join([f'- {topic}' for topic in topics])}\n\n## What I Learned\n- Explored new concepts in {topics[0]}\n- Improved understanding of {topics[1]}\n- Gained insights into {topics[2]}\n\n## Tomorrow's Goals\n{chr(10).join([f'- {goal}' for goal in goals])}\n\n---\n*This entry was automatically generated by GitHub Actions.*"
-              return content
+          function sample<T>(arr: T[], n: number): T[] {
+            const copy = [...arr];
+            const out: T[] = [];
+            for (let i = 0; i < n; i++) {
+              const idx = Math.floor(Math.random() * copy.length);
+              out.push(copy.splice(idx, 1)[0]);
+            }
+            return out;
+          }
 
-          if __name__ == "__main__":
-              content = generate_journal_content()
-              print(content)
-          EOL
+          function main() {
+            const dateStr = format(new Date(), 'yyyy-MM-dd');
+            const q = quotes[Math.floor(Math.random() * quotes.length)];
+            const tps = sample(topics, 3);
+            const gls = sample(goals, 3);
 
+            let md = `# Journal Entry: ${dateStr}\n\n> ${q}\n\n`;
+            md += "## Today's Focus\n" + tps.map(t => `- ${t}`).join('\n') + '\n\n';
+            md += "## What I Learned\n";
+            md += `- Explored new concepts in ${tps[0]}\n`;
+            md += `- Improved understanding of ${tps[1]}\n`;
+            md += `- Gained insights into ${tps[2]}\n\n`;
+            md += "## Tomorrow's Goals\n" + gls.map(g => `- ${g}`).join('\n') + '\n\n';
+            md += `---\n*This entry was automatically generated by GitHub Actions.*\n`;
+
+            const dir = 'journals';
+            if (!existsSync(dir)) mkdirSync(dir);
+            writeFileSync(`${dir}/journal-${dateStr}.md`, md);
+          }
+
+          main();
+          EOF
+
+          # Commit and push changes
           CURRENT_DATE=$(date -u +'%Y-%m-%d')
-          JOURNAL_DIR="journals"
-          mkdir -p $JOURNAL_DIR
-          JOURNAL_FILE="$JOURNAL_DIR/journal-$CURRENT_DATE.md"
-          python generate_content.py > "$JOURNAL_FILE"
-          git add "$JOURNAL_FILE"
-          git commit -m "feat: add journal entry for $CURRENT_DATE" || git commit --allow-empty -m "chore: daily automated commit $CURRENT_DATE"
+          git add journals/journal-"$CURRENT_DATE".md
+          git commit -m "feat: add journal entry for $CURRENT_DATE" || \
+            git commit --allow-empty -m "chore: daily automated commit $CURRENT_DATE"
 
       - name: Push to main
         run: |
