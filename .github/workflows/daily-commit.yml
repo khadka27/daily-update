@@ -44,8 +44,8 @@ jobs:
         run: |
           #!/usr/bin/env bash
           cat > generate_content.ts << 'EOF'
-          import { writeFileSync, mkdirSync, existsSync } from 'fs';
-          import path from 'path';
+          const fs = require('fs');
+          const path = require('path');
 
           const quotes = [
               "The best way to predict the future is to create it.",
@@ -93,11 +93,11 @@ jobs:
             const dir = 'journals';
             const filePath = path.join(dir, `journal-${dateStr}.md`);
 
-            if (!existsSync(dir)) {
-                mkdirSync(dir, { recursive: true });
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
             }
 
-            writeFileSync(filePath, md);
+            fs.writeFileSync(filePath, md);
             console.log(`Created journal entry at ${filePath}`);
           }
 
